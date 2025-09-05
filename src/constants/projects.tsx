@@ -17,7 +17,7 @@ import {
 } from "react-icons/si";
 import vidronHome from "@/assets/images/vidronHome.png";
 
-export const projectList: ProjectList[] = [
+export const projects: ProjectList[] = [
   {
     name: "Vidron",
     slug: "vidron",

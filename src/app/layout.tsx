@@ -3,7 +3,7 @@ import "./globals.css";
 import Navbar from "@/components/navbar/Navbar";
 
 export const metadata: Metadata = {
-  title: "Portfolio",
+  title: "Aman Rana",
   description: "My personal portfolio built with Next.js",
 };
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, use } from "react";
-import { projectList } from "@/constants/projectList";
+import { projects } from "@/constants/projects";
 import NotFound from "@/app/not-found";
 import { motion, useScroll, useTransform } from "motion/react";
 
@@ -11,7 +11,7 @@ export default function About({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = use(params);
-  const project = projectList.find((p) => p.slug === slug);
+  const project = projects.find((p) => p.slug === slug);
   if (!project) return NotFound();
 
   const containerRef = useRef(null);
