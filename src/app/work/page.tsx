@@ -1,11 +1,14 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import RandomText from "@/components/animations/RandomText";
 import MaskingGrid from "@/components/animations/MaskingGrid";
+import useScreenSize from "@/utils/screenSize";
 import Footer from "@/components/footer/Footer";
+import { IoArrowForward } from "react-icons/io5";
 import codebitsImg from "@/assets/images/codebitsHero.png";
 import vidronImg from "@/assets/images/vidronHome.png";
 import weblogImg from "@/assets/images/weblog.png";
@@ -75,18 +78,45 @@ const projectsList = [
 
 export default function Work() {
   const [hoveredProject, setHoveredProject] = useState<string | null>(null);
+  const [activeProject, setActiveProject] = useState<string | null>(null);
+
+  const router = useRouter();
+  const screenSize = useScreenSize();
+  const isSm = screenSize === "sm" || screenSize === "md";
+  const listRef = useRef<HTMLUListElement>(null);
+
+  const handleClick = (project: { name: string; href: string }) => {
+    if (isSm) {
+      setActiveProject(activeProject === project.name ? null : project.name);
+    } else {
+      router.push(project.href);
+    }
+  };
+
+  // touch outside the list in sm and md
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (listRef.current && !listRef.current.contains(event.target as Node)) {
+        setActiveProject(null);
+      }
+    };
+    document.addEventListener("click", handleClickOutside);
+    return () => {
+      document.removeEventListener("click", handleClickOutside);
+    };
+  }, []);
 
   return (
     <>
-      <div className="h-full w-full px-4 lg:px-8 pb-20 flex flex-col items-center justify-center gap-y-20 bg-[#161616] text-white">
+      <div className="h-full w-full px-4 md:px-6 lg:px-8 pb-20 flex flex-col items-center justify-center gap-y-20 bg-[#111] text-white">
         {/* heading and paragraph */}
-        <div className="w-full lg:mt-52 flex flex-col lg:flex-row justify-center items-center lg:justify-between">
-          <h1 className="text-4xl md:text-6xl lg:text-8xl font-medium flex flex-col">
+        <div className="w-full mt-52 flex flex-col lg:flex-row justify-center items-start lg:justify-between gap-y-4">
+          <h1 className="text-4xl md:text-5xl lg:text-8xl font-medium flex flex-col">
             <RandomText text="WHAT I'VE BUILT" />
           </h1>
 
           <div
-            className="relative lg:w-[30%] text-justify font-mono text-sm text-[#9b9b9c] uppercase"
+            className="relative lg:w-[30%] text-justify font-mono text-xs md:text-sm text-[#9b9b9c] uppercase"
             style={{ textIndent: "30%" }}
           >
             <p>
@@ -105,59 +135,75 @@ export default function Work() {
         </div>
 
         {/* project list */}
-        <ul className="w-full flex flex-col">
-          {projectsList.map((project, index) => (
-            <div
-              key={index}
-              onMouseEnter={() => {
-                setHoveredProject(project.name);
-              }}
-              onMouseLeave={() => {
-                setHoveredProject(null);
-              }}
-              className="w-full h-full relative"
-            >
-              <Link
-                href={project.href}
-                className={`relative py-7 text-6xl uppercase duration-300 flex flex-col z-20 ${
-                  hoveredProject && hoveredProject !== project.name
-                    ? "opacity-20"
-                    : "opacity-100"
-                }
-              ${
-                hoveredProject && hoveredProject === project.name
-                  ? "border-y"
-                  : "border-y border-dotted border-[#6a6a6a]"
-              }
-              `}
+        <ul ref={listRef} className="w-full flex flex-col">
+          {projectsList.map((project, index) => {
+            return (
+              <li
+                key={index}
+                onClick={() => handleClick(project)}
+                onMouseEnter={() => {
+                  setHoveredProject(project.name);
+                }}
+                onMouseLeave={() => {
+                  setHoveredProject(null);
+                }}
+                className="w-full h-full relative"
               >
-                <h3 className="font-medium">{project.name}</h3>
-
                 <div
-                  className={`transition-all duration-700 ease-in-out overflow-hidden`}
-                  style={{
-                    maxHeight:
-                      hoveredProject === project.name ? "200px" : "0px",
-                  }}
+                  className={`relative py-4 md:py-6 lg:py-7 text-3xl md:text-4xl lg:text-6xl uppercase leading-none duration-75 lg:duration-500 flex flex-col z-20 cursor-pointer border-b-2 border-dotted border-[#6a6a6a] first:border-t-2
+                    ${
+                      isSm
+                        ? activeProject && activeProject !== project.name
+                          ? "opacity-20"
+                          : "opacity-100"
+                        : hoveredProject && hoveredProject !== project.name
+                        ? "opacity-20"
+                        : "opacity-100"
+                    }                  
+                  `}
                 >
-                  <div className="flex gap-x-20 text-[#bababa] mt-2">
-                    <p className="lg:w-[30%] text-sm font-mono uppercase">
-                      {project.description}
-                    </p>
-                    <p className="lg:w-[20%] text-sm font-mono uppercase">
-                      {project.tech}
-                    </p>
-                  </div>
-                </div>
-              </Link>
+                  <h3 className="font-medium select-none">{project.name}</h3>
 
-              {hoveredProject === project.name && (
-                <div className="hidden lg:block absolute right-0 top-1/2 -translate-y-1/2 w-[30vw] aspect-video z-10">
-                  <Image src={project.img} alt={project.name} fill />
+                  <div
+                    className={`transition-all duration-700 ease-in-out overflow-hidden`}
+                    style={{
+                      maxHeight: isSm
+                        ? activeProject === project.name
+                          ? "200px"
+                          : "0px"
+                        : hoveredProject === project.name
+                        ? "200px"
+                        : "0px",
+                    }}
+                  >
+                    <div className="flex justify-between lg:justify-normal lg:gap-x-20 text-[#bababa] mt-7">
+                      <p className="w-[70%] lg:w-[30%] text-xs md:text-sm font-mono uppercase ">
+                        {project.description}
+                      </p>
+                      <p className="w-[20%] text-xs md:text-sm font-mono uppercase">
+                        {project.tech}
+                      </p>
+                    </div>
+                  </div>
+
+                  {activeProject && activeProject === project.name ? (
+                    <Link
+                      href={project.href}
+                      className="absolute top-0 right-0 flex justify-center items-center text-white py-4 md:py-6 pl-4 text-3xl md:text-4xl"
+                    >
+                      <IoArrowForward className="" />
+                    </Link>
+                  ) : null}
                 </div>
-              )}
-            </div>
-          ))}
+
+                {hoveredProject === project.name && (
+                  <div className="hidden lg:block absolute right-0 top-1/2 -translate-y-1/2 w-[30vw] aspect-video z-10">
+                    <Image src={project.img} alt={project.name} fill />
+                  </div>
+                )}
+              </li>
+            );
+          })}
         </ul>
       </div>
 

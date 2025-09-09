@@ -1,10 +1,10 @@
 import { ReactNode } from "react";
 
-export type ProjectList = {
+export interface ProjectList {
   name: string;
   slug: string;
-  videoSrc: string;
-  liveLink: string;
+  video: string;
+  link: string;
   tagline: string;
   year: string;
   overview: string;
@@ -17,4 +17,4 @@ export type ProjectList = {
     icon?: ReactNode;
   }[];
   renderImages: () => ReactNode;
-};
+}
